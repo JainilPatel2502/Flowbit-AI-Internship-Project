@@ -1,0 +1,8 @@
+# Always use LF for Python files
+*.py text eol=lf
+
+# Always use CRLF for Windows batch scripts
+*.bat text eol=crlf
+
+# For everything else, auto-detect
+* text=auto

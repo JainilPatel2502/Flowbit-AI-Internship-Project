@@ -1,0 +1,25 @@
+{
+    "id": "unique_id_for_crm",
+    "source_type": "email",
+    "intent": "RFQ",
+    "customer": {
+        "name": "Priya Shah",
+        "email": "jainilpatel2222@gmail.com",
+        "organization": "TechParts Ltd."
+    },
+    "request": {
+        "items": [
+            "resistors",
+            "capacitors",
+            "ICs"
+        ],
+        "notes": "Bulk purchase of electronic components",
+        "urgency": "unspecified",
+        "requested_date": null
+    },
+    "metadata": {
+        "conversation_id": null,
+        "format": "email",
+        "recived_at": 1748509428.6658003
+    }
+}
