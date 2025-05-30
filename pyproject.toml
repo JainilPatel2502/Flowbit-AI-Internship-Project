@@ -11,9 +11,12 @@ dependencies = [
     "langchain-community>=0.3.24",
     "langchain-core>=0.3.62",
     "langchain-google-genai>=2.1.5",
+    "openai>=1.82.1",
     "pydantic[email]>=2.11.5",
     "pypdf>=5.5.0",
     "python-dotenv>=1.1.0",
+    "python-multipart>=0.0.20",
     "redis>=6.2.0",
     "streamlit>=1.45.1",
+    "uvicorn>=0.34.2",
 ]

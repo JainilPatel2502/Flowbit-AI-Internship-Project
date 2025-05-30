@@ -1,13 +1,13 @@
 import json
 import time
+import os
 from dotenv import load_dotenv
-import redis
 from langchain.schema.runnable import RunnableLambda
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.memory.entity import RedisEntityStore
 from pro.model.Flowbit import FlowbitSchema
-from pro.utils.memory import set_memory,get_memory
+from pro.memory.memory import set_memory,get_memory
 load_dotenv()
 
 prompt = PromptTemplate(
@@ -23,7 +23,11 @@ prompt = PromptTemplate(
     input_variables=["input", "history"]
 )
 
-model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-8b")
+model = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash-8b",
+    google_api_key=os.getenv("GOOGLE_API_KEY")
+)
+
 model_with_structured_output = model.with_structured_output(FlowbitSchema)
 
 def format_prompt_fn(inputs: dict) -> dict:
@@ -50,5 +54,26 @@ def run_model_fn(inputs: dict) -> dict:
 
 run_model = RunnableLambda(run_model_fn)
 
+
+
+
+#json
+jsonchain = format_prompt | run_model
+
+
+
+
+
+# memoery
 json_chain = get_memory | format_prompt | run_model | set_memory
 json_agent = json_chain
+
+
+
+
+
+
+#basic
+
+json_ch=prompt|model_with_structured_output
+json_agent = json_ch

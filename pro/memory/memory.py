@@ -59,3 +59,32 @@ def set_memory_fn(inputs: dict) -> dict:
     return output
 
 set_memory = RunnableLambda(set_memory_fn)
+
+def get_history_from_redis(email_id: str, new_input: str):
+    raw = entity_store.get(email_id)
+    history_json = []
+    history_text_lines = []
+
+    if raw:
+        history_json = json.loads(raw)
+        for h in history_json:
+            line = "User: " + h["input"] + "\nAssistant: " + str(h["output"])
+            history_text_lines.append(line)
+
+    history_text = "\n".join(history_text_lines)
+    print("✅ Memory loaded")
+    return history_text, history_json
+
+def set_history_to_redis(email_id: str, input_text: str, output: dict, raw_history: list):
+    if hasattr(output, "dict"):
+        output = output.dict()
+
+    new_entry = {
+        "input": input_text,
+        "output": output,
+        "timestamp": time.time()
+    }
+
+    raw_history.append(new_entry)
+    entity_store.set(email_id, json.dumps(raw_history))
+    print("✅ Memory written")

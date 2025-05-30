@@ -5,12 +5,16 @@ from pro.model.Classify import  ClassifySchema
 from pro.agents.email_agent import email_chain
 from pro.agents.json_agent import json_chain
 import json
-import redis
+import os
 from dotenv import load_dotenv
 load_dotenv()
-model = ChatGoogleGenerativeAI(model='gemini-1.5-flash-8b')
+model = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash-8b",
+    google_api_key=os.getenv("GOOGLE_API_KEY")
+)
+
 model_with_structured_output=model.with_structured_output(ClassifySchema)
-input="""Subject: Request for Quotation - Bulk Purchase from:client@example.com Hi
+input="""Subject: Request for Quotation - Bulk Purchase from:patelson222@gmail.com Hi
 payment stil not done please do it in very urgent manner or else you may face serious legal issues
 Regards,  
 Priya Shah  
@@ -57,12 +61,11 @@ classifier_chain= prompt|model_with_structured_output
 main_chain = classifier_chain|branch_chain
 
 
-res=main_chain.invoke({"inp":input})
-with open('output.json','w') as f:
-    json.dump(res,f,indent=3)
 
 
+classifier_agent = classifier_chain
+main_agent = main_chain
 
-
-# classifier_agent = classifier_chain
-# main_agent = main_chain
+# res=main_chain.invoke({"inp":input})
+# with open('output.json','w') as f:
+#     json.dump(res,f,indent=3)
