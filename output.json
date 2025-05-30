@@ -1,25 +1,19 @@
 {
-    "id": "unique_id_for_crm",
-    "source_type": "email",
-    "intent": "RFQ",
-    "customer": {
-        "name": "Priya Shah",
-        "email": "jainilpatel2222@gmail.com",
-        "organization": "TechParts Ltd."
-    },
-    "request": {
-        "items": [
-            "resistors",
-            "capacitors",
-            "ICs"
-        ],
-        "notes": "Bulk purchase of electronic components",
-        "urgency": "unspecified",
-        "requested_date": null
-    },
-    "metadata": {
-        "conversation_id": null,
-        "format": "email",
-        "recived_at": 1748509428.6658003
-    }
+   "source_type": "email",
+   "intent": "RFQ",
+   "customer": {
+      "name": "Priya Shah",
+      "email": "client@example.com",
+      "organization": "Test Business Ltd"
+   },
+   "request": {
+      "items": [],
+      "notes": "payment stil not done please do it in very urgent manner or else you may face serious legal issues",
+      "urgency": "high",
+      "requested_date": null
+   },
+   "metadata": {
+      "format": "email",
+      "recived_at": 1748585125.1824088
+   }
 }

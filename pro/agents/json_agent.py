@@ -1,13 +1,54 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
-from pro.model.Flowbit import FlowbitSchema
+import json
+import time
 from dotenv import load_dotenv
+import redis
+from langchain.schema.runnable import RunnableLambda
+from langchain.prompts import PromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.memory.entity import RedisEntityStore
+from pro.model.Flowbit import FlowbitSchema
+from pro.utils.memory import set_memory,get_memory
 load_dotenv()
-model = ChatGoogleGenerativeAI(model='gemini-1.5-flash-8b')
-model_with_stuctured_output=model.with_structured_output(FlowbitSchema)
+
 prompt = PromptTemplate(
-    template='this is the json from our client u need to extract the details from the json and give a structured output {json}',
-    input_variables=['json']
+    template="""
+    This is a JSON blob from our client. Extract structured details.
+
+    Conversation history:
+    {history}
+
+    New JSON:
+    {input}
+    """,
+    input_variables=["input", "history"]
 )
-json_chain=prompt|model_with_stuctured_output
+
+model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-8b")
+model_with_structured_output = model.with_structured_output(FlowbitSchema)
+
+def format_prompt_fn(inputs: dict) -> dict:
+    formatted = prompt.format(input=inputs["input"], history=inputs["history"])
+    print("Prompt formatted")
+    return {
+        "email": inputs["email"],
+        "input": inputs["input"],
+        "formatted_prompt": formatted,
+        "raw_history": inputs["raw_history"]
+    }
+
+format_prompt = RunnableLambda(format_prompt_fn)
+
+def run_model_fn(inputs: dict) -> dict:
+    result = model_with_structured_output.invoke(inputs["formatted_prompt"])
+    print("Model thinking")
+    return {
+        "email": inputs["email"],
+        "input": inputs["input"],
+        "output": result,
+        "raw_history": inputs["raw_history"]
+    }
+
+run_model = RunnableLambda(run_model_fn)
+
+json_chain = get_memory | format_prompt | run_model | set_memory
 json_agent = json_chain
