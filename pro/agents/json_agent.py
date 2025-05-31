@@ -54,33 +54,11 @@ def run_model_fn(inputs: dict) -> dict:
     }
 
 run_model = RunnableLambda(run_model_fn)
-
-
-
-
-#json
 jsonchain = format_prompt | run_model
-
-
-
-
-
-# memoery
 json_chain = get_memory | format_prompt | run_model | set_memory
 json_agent = json_chain
-
-
-
-
-
-
-#basic
-
 json_ch=prompt|model_with_structured_output
 json_agent = json_ch
-
-
-
 
 def stream_json_agent(input_data: dict):
     memory = get_memory.invoke(input_data)
@@ -110,4 +88,4 @@ def stream_json_agent(input_data: dict):
     set_memory.invoke(full_output)
     yield f"Step 8: Memory saved.\n"
 
-    yield f"✅ Done.\n"
+    yield f" Done.\n"

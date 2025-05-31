@@ -12,9 +12,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from pro.model.Classify import Email
 from pro.model.Flowbit import FlowbitSchema
 from pro.memory.memory import set_memory, get_memory
-
 load_dotenv()
-
 
 initial_prompt=PromptTemplate(
     template='here is  the text  from a pdf iddentify the  email address and the intent of the text data : {data}',
@@ -43,14 +41,12 @@ model_with_structured_output = model.with_structured_output(FlowbitSchema)
 model_email=model.with_structured_output(Email)
 
 email_chain = initial_prompt|model_email
-# Use LangChain's PyPDFLoader to extract text
 def extract_text_from_pdf(pdf_path: str) -> str:
     loader = PyPDFLoader(pdf_path)
     pages = loader.load()
     text = " ".join([page.page_content for page in pages])
     return text.strip()
 
-# Format the prompt
 def format_prompt_fn(inputs: dict) -> dict:
     formatted = prompt.format(input=inputs["input"], history=inputs["history"])
     print("Prompt formatted")
@@ -81,13 +77,11 @@ def run_model_fn(inputs: dict) -> dict:
 run_model = RunnableLambda(run_model_fn)
 
 pdfchain=format_prompt | run_model
-
-
 pdf_chain = initial_prompt|model_email|model_to_dict|get_memory | format_prompt | run_model | set_memory
 pdf_agent = pdf_chain
 
 def pdf_stream_agent(pdf_path: str):
-    yield "🔍 Extracting text from PDF...\n\n\n"
+    yield " Extracting text from PDF...\n\n\n"
     text = extract_text_from_pdf(pdf_path)
     time.sleep(0.1)
 

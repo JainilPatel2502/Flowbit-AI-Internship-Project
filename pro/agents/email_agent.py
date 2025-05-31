@@ -55,16 +55,10 @@ def run_model_fn(inputs: dict) -> dict:
 
 run_model = RunnableLambda(run_model_fn)
 
-#email
 emailchain=format_prompt | run_model
-
-#memory
 email_chain = get_memory | format_prompt | run_model | set_memory
-
-#basic
 email_ch=prompt|model_with_structured_output
 email_agent = email_ch
-
 
 def stream_email_agent(input_data: dict):
     memory = get_memory.invoke(input_data)
@@ -94,4 +88,4 @@ def stream_email_agent(input_data: dict):
     set_memory.invoke(full_output)
     yield f"Step 8: Memory saved.\n"
 
-    yield f"✅ Done.\n"
+    yield f" Done.\n"

@@ -6,9 +6,7 @@ import time
 import uuid
 import tempfile
 import os
-
 app = FastAPI()
-
 @app.post("/stream/")
 async def stream_all(request: Request):
     data = await request.json()
@@ -22,7 +20,6 @@ async def stream_all(request: Request):
 
 @app.post('/pdf')
 async def pdf(file: UploadFile = File(...)):
-     
     filename = f"tmp_{uuid.uuid4()}.pdf"
     path = os.path.join(tempfile.gettempdir(), filename)
 

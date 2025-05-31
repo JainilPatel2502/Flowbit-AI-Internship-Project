@@ -26,37 +26,29 @@ branch_chain = RunnableBranch(
 
 classifier_chain= prompt|model_with_structured_output
 main_chain = classifier_chain|branch_chain
-
-
-
 classifier_agent = classifier_chain
 main_agent = main_chain
-
-# res=main_chain.invoke({"inp":input})
-# with open('output.json','w') as f:
-#     json.dump(res,f,indent=3)
-
 
 def stream_main_agent(input_data: dict):
     inp = input_data.get("inp", "").strip()
     if not inp:
-        yield "❌ No input provided.\n"
+        yield " No input provided.\n"
         return
 
     yield "🔍 Step 1: Formatting classifier prompt...\n"
     formatted_prompt = prompt.format(inp=inp)
 
-    yield f"📨 Prompt:\n{formatted_prompt}\n"
+    yield f" Prompt:\n{formatted_prompt}\n"
 
-    yield "🤖 Step 2: Calling Gemini classifier...\n"
+    yield " Step 2: Calling Gemini classifier...\n"
     try:
         result = model_with_structured_output.invoke(formatted_prompt)
     except Exception as e:
-        yield f"❌ Classifier model error: {e}\n"
+        yield f" Classifier model error: {e}\n"
         return
 
     output = result.model_dump()
-    yield "✅ Step 3: Classification result:\n"
+    yield " Step 3: Classification result:\n"
     yield json.dumps(output, indent=2) + "\n"
 
     typ = output.get("type")
@@ -64,14 +56,14 @@ def stream_main_agent(input_data: dict):
     data = output.get("data")
 
     if typ == "email":
-        yield "📬 Step 4: Routing to Email Agent...\n"
+        yield " Step 4: Routing to Email Agent...\n"
         for step in stream_email_agent({"email": email, "data": data}):
-            yield "📨 [Email Agent] " + step
+            yield " [Email Agent] " + step
     elif typ == "json":
-        yield "📦 Step 4: Routing to JSON Agent...\n"
+        yield " Step 4: Routing to JSON Agent...\n"
         for step in stream_json_agent({"email": email, "data": data}):
-            yield "🧾 [JSON Agent] " + step
+            yield " [JSON Agent] " + step
     else:
-        yield "❌ Unsupported input type. Only 'email' and 'json' are supported.\n"
+        yield " Unsupported input type. Only 'email' and 'json' are supported.\n"
 
-    yield "✅ Done.\n"
+    yield " Done.\n"
