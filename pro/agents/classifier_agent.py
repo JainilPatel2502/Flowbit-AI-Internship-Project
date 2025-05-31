@@ -12,35 +12,7 @@ model = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash-8b",
     google_api_key=os.getenv("GOOGLE_API_KEY")
 )
-
 model_with_structured_output=model.with_structured_output(ClassifySchema)
-input="""Subject: Request for Quotation - Bulk Purchase from:patelson222@.com Hi payment stil not done please do it in very urgent manner or else you may face serious legal issues Regards,   Priya Shah   Test Business Team, Test Business Ltd."""
-
-# input="""{
-#     "email":"jsainilpatel2222@gmail.com",
-#   "invoice_id": "INV-2024-0012",
-#   "date": "2024-06-10",
-#   "customer": {
-#     "name": "GreenTech Solutions",
-#     "email": "billing@greentech.com"
-#   },
-#   "items": [
-#     {
-#       "description": "Solar Panel - 250W",
-#       "quantity": 10,
-#       "unit_price": 150
-#     },
-#     {
-#       "description": "Inverter - 3kW",
-#       "quantity": 2,
-#       "unit_price": 500
-#     }
-#   ],
-#   "total_amount": 2500,
-#   "currency": "USD"
-# }
-# """
-
 
 prompt=PromptTemplate(
     template='{inp}',

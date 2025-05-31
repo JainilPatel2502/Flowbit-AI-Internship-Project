@@ -1,6 +1,7 @@
 import json
 import time
 import os
+import requests
 from dotenv import load_dotenv
 from langchain.schema.runnable import RunnableLambda
 from langchain.prompts import PromptTemplate
@@ -75,7 +76,15 @@ def stream_email_agent(input_data: dict):
     model_output = model_with_structured_output.invoke(formatted)
     output_json = model_output.model_dump()
     yield f"Step 7: Model called -> {json.dumps(output_json, indent=2)}\n"
+    result=output_json
+    if result['tone']=="angry":
+        response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
 
+    if result['tone']=="extreamly angry":
+        response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
+
+    if result['total']>10000:
+        response=requests.get("http://127.0.0.1:8001/total",json={"total":result['total'],"email":result['customer']["email"]})
     full_output = {
         "email": input_data["email"],
         "input": input_data["data"],

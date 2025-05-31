@@ -8,8 +8,6 @@ redis_client = redis.Redis(
     port=6379,
     decode_responses=True
 )
-
-# Entity store for memory
 entity_store = RedisEntityStore(redis_client=redis_client)
 
 def get_memory_fn(inputs: dict) -> dict:
@@ -27,17 +25,12 @@ def get_memory_fn(inputs: dict) -> dict:
             history_text_lines.append(line)
 
     history_text = "\n".join(history_text_lines)
-    print("history read")
     return {
         "email": email_id,
         "input": new_input,
         "history": history_text,
         "raw_history": history_json
     }
-
-
-
-get_memory = RunnableLambda(get_memory_fn)
 
 def set_memory_fn(inputs: dict) -> dict:
     output = inputs["output"]
@@ -54,37 +47,7 @@ def set_memory_fn(inputs: dict) -> dict:
     raw_history.append(new_entry)
 
     entity_store.set(inputs["email"], json.dumps(raw_history))
-    print("Memory written")
-    print(raw_history)
     return output
 
 set_memory = RunnableLambda(set_memory_fn)
-
-def get_history_from_redis(email_id: str, new_input: str):
-    raw = entity_store.get(email_id)
-    history_json = []
-    history_text_lines = []
-
-    if raw:
-        history_json = json.loads(raw)
-        for h in history_json:
-            line = "User: " + h["input"] + "\nAssistant: " + str(h["output"])
-            history_text_lines.append(line)
-
-    history_text = "\n".join(history_text_lines)
-    print("✅ Memory loaded")
-    return history_text, history_json
-
-def set_history_to_redis(email_id: str, input_text: str, output: dict, raw_history: list):
-    if hasattr(output, "dict"):
-        output = output.dict()
-
-    new_entry = {
-        "input": input_text,
-        "output": output,
-        "timestamp": time.time()
-    }
-
-    raw_history.append(new_entry)
-    entity_store.set(email_id, json.dumps(raw_history))
-    print("✅ Memory written")
+get_memory = RunnableLambda(get_memory_fn)

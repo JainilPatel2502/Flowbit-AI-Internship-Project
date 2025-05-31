@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import  os
 import json
 import time
+import requests
 from pydantic import BaseModel
 from langchain.schema.runnable import RunnableLambda
 from langchain.prompts import PromptTemplate
@@ -111,6 +112,15 @@ def pdf_stream_agent(pdf_path: str):
     yield f"Pdf agent exptracting the data\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n "
     result = model_with_structured_output.invoke(formatted_prompt)
     time.sleep(0.1)
+
+    if result['tone']=="angry":
+        response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
+
+    if result['tone']=="extreamly angry":
+        response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
+
+    if result['total']>10000:
+        response=requests.get("http://127.0.0.1:8001/total",json={"total":result['total'],"email":result['customer']["email"]})
 
     yield f"Saving in memory\n \n\n\n\n\n\n\n\n\n\n "
     full_output = {
