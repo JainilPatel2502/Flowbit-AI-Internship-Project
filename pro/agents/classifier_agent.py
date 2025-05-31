@@ -2,8 +2,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnableBranch,RunnableLambda
 from pro.model.Classify import  ClassifySchema
-from pro.agents.email_agent import email_chain
-from pro.agents.json_agent import json_chain
+from pro.agents.email_agent import email_chain, stream_email_agent
+from pro.agents.json_agent import json_chain, stream_json_agent
 import json
 import os
 from dotenv import load_dotenv
@@ -63,3 +63,43 @@ main_agent = main_chain
 # res=main_chain.invoke({"inp":input})
 # with open('output.json','w') as f:
 #     json.dump(res,f,indent=3)
+
+
+def stream_main_agent(input_data: dict):
+    inp = input_data.get("inp", "").strip()
+    if not inp:
+        yield "❌ No input provided.\n"
+        return
+
+    yield "🔍 Step 1: Formatting classifier prompt...\n"
+    formatted_prompt = prompt.format(inp=inp)
+
+    yield f"📨 Prompt:\n{formatted_prompt}\n"
+
+    yield "🤖 Step 2: Calling Gemini classifier...\n"
+    try:
+        result = model_with_structured_output.invoke(formatted_prompt)
+    except Exception as e:
+        yield f"❌ Classifier model error: {e}\n"
+        return
+
+    output = result.model_dump()
+    yield "✅ Step 3: Classification result:\n"
+    yield json.dumps(output, indent=2) + "\n"
+
+    typ = output.get("type")
+    email = output.get("email")
+    data = output.get("data")
+
+    if typ == "email":
+        yield "📬 Step 4: Routing to Email Agent...\n"
+        for step in stream_email_agent({"email": email, "data": data}):
+            yield "📨 [Email Agent] " + step
+    elif typ == "json":
+        yield "📦 Step 4: Routing to JSON Agent...\n"
+        for step in stream_json_agent({"email": email, "data": data}):
+            yield "🧾 [JSON Agent] " + step
+    else:
+        yield "❌ Unsupported input type. Only 'email' and 'json' are supported.\n"
+
+    yield "✅ Done.\n"

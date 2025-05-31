@@ -77,3 +77,28 @@ json_agent = json_chain
 
 json_ch=prompt|model_with_structured_output
 json_agent = json_ch
+
+
+
+
+def stream_json_agent(input_data: dict):
+    memory = get_memory.invoke(input_data)
+    yield f"Step 5: Memory fetched -> {memory}\n"
+
+    formatted = prompt.format(input=memory["input"], history=memory["history"])
+    yield f"Step 6: Prompt formatted -> {formatted}\n"
+
+    model_output = model_with_structured_output.invoke(formatted)
+    output_json = model_output.model_dump()
+    yield f"Step 7: Model called -> {json.dumps(output_json, indent=2)}\n"
+
+    full_output = {
+        "email": input_data["email"],
+        "input": input_data["data"],
+        "output": output_json,
+        "raw_history": memory["raw_history"]
+    }
+    set_memory.invoke(full_output)
+    yield f"Step 8: Memory saved.\n"
+
+    yield f"✅ Done.\n"

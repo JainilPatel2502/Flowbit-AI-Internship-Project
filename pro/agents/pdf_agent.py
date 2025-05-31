@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 import  os
+import json
+import time
 from pydantic import BaseModel
 from langchain.schema.runnable import RunnableLambda
 from langchain.prompts import PromptTemplate
@@ -38,6 +40,8 @@ model = ChatGoogleGenerativeAI(
 
 model_with_structured_output = model.with_structured_output(FlowbitSchema)
 model_email=model.with_structured_output(Email)
+
+email_chain = initial_prompt|model_email
 # Use LangChain's PyPDFLoader to extract text
 def extract_text_from_pdf(pdf_path: str) -> str:
     loader = PyPDFLoader(pdf_path)
@@ -81,3 +85,41 @@ pdfchain=format_prompt | run_model
 pdf_chain = initial_prompt|model_email|model_to_dict|get_memory | format_prompt | run_model | set_memory
 pdf_agent = pdf_chain
 
+def pdf_stream_agent(pdf_path: str):
+    yield "🔍 Extracting text from PDF...\n\n\n"
+    text = extract_text_from_pdf(pdf_path)
+    time.sleep(0.1)
+
+    yield f"Extracted text\n\n\n\n\n \n\n\n\n\n\n\n\n\n\n  {text}"
+    email_data = email_chain.invoke({"data": text})
+    email_data=email_data.model_dump()
+    email = email_data['email']
+    intent = email_data['intent']
+    time.sleep(0.1)
+
+    yield f"Pdf recived from the email id {email} whith an intent of {intent}\n \n\n\n\n\n\n\n\n\n\n  "
+
+    yield f"Serching in memory for any previous mails\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n  "
+    raw_history = get_memory.invoke(email_data)
+    time.sleep(0.1)
+    if raw_history:
+        yield f"found {raw_history}\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n "
+    
+    formatted_prompt = prompt.format(input=text, history=raw_history)
+    time.sleep(0.1)
+
+    yield f"Pdf agent exptracting the data\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n "
+    result = model_with_structured_output.invoke(formatted_prompt)
+    time.sleep(0.1)
+
+    yield f"Saving in memory\n \n\n\n\n\n\n\n\n\n\n "
+    full_output = {
+        "email": email,
+        "input": text,
+        "output": result.model_dump(),
+        "raw_history": raw_history["raw_history"]
+    }
+    set_memory.invoke(full_output)
+    time.sleep(0.1)
+
+    yield f"\n \n\n\n\n\n\n\n\n\n\n {json.dumps(result.model_dump(), indent=2)}"
