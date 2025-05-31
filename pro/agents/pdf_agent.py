@@ -1,16 +1,22 @@
 from dotenv import load_dotenv
 import  os
+from pydantic import BaseModel
 from langchain.schema.runnable import RunnableLambda
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.memory.entity import RedisEntityStore
 from langchain_community.document_loaders import PyPDFLoader
-
+from pro.model.Classify import Email
 from pro.model.Flowbit import FlowbitSchema
 from pro.memory.memory import set_memory, get_memory
 
 load_dotenv()
 
+
+initial_prompt=PromptTemplate(
+    template='here is  the text  from a pdf iddentify the  email address and the intent of the text data : {data}',
+    input_variables=['data']
+)
 # Define the prompt for PDF input
 prompt = PromptTemplate(
     template="""
@@ -24,7 +30,6 @@ prompt = PromptTemplate(
     """,
     input_variables=["input", "history"]
 )
-
 # Gemini model with FlowbitSchema output
 model = ChatGoogleGenerativeAI(
     model="gemini-1.5-flash-8b",
@@ -32,7 +37,7 @@ model = ChatGoogleGenerativeAI(
 )
 
 model_with_structured_output = model.with_structured_output(FlowbitSchema)
-
+model_email=model.with_structured_output(Email)
 # Use LangChain's PyPDFLoader to extract text
 def extract_text_from_pdf(pdf_path: str) -> str:
     loader = PyPDFLoader(pdf_path)
@@ -53,6 +58,10 @@ def format_prompt_fn(inputs: dict) -> dict:
 
 format_prompt = RunnableLambda(format_prompt_fn)
 
+def model_to_dict_fn(model:Email)->dict:
+    return model.model_dump()
+model_to_dict=RunnableLambda(model_to_dict_fn)
+
 # Run the model
 def run_model_fn(inputs: dict) -> dict:
     result = model_with_structured_output.invoke(inputs["formatted_prompt"])
@@ -66,27 +75,9 @@ def run_model_fn(inputs: dict) -> dict:
 
 run_model = RunnableLambda(run_model_fn)
 
-# Define the agent chain
-
-
-
 pdfchain=format_prompt | run_model
 
 
-pdf_chain = get_memory | format_prompt | run_model | set_memory
+pdf_chain = initial_prompt|model_email|model_to_dict|get_memory | format_prompt | run_model | set_memory
 pdf_agent = pdf_chain
 
-# Example manual test
-if __name__ == "__main__":
-    file_path = r"pro/agents/wordpress-pdf-invoice-plugin-sample.pdf"
-    email = "client@example.com"
-
-    extracted_text = extract_text_from_pdf(file_path)
-
-    response = pdf_agent.invoke({
-        "email": email,
-        "data": extracted_text
-    })
-
-    print("Final Output:")
-    print(response)

@@ -14,12 +14,7 @@ model = ChatGoogleGenerativeAI(
 )
 
 model_with_structured_output=model.with_structured_output(ClassifySchema)
-input="""Subject: Request for Quotation - Bulk Purchase from:patelson222@gmail.com Hi
-payment stil not done please do it in very urgent manner or else you may face serious legal issues
-Regards,  
-Priya Shah  
-Test Business Team, Test Business Ltd.
-"""
+input="""Subject: Request for Quotation - Bulk Purchase from:patelson222@.com Hi payment stil not done please do it in very urgent manner or else you may face serious legal issues Regards,   Priya Shah   Test Business Team, Test Business Ltd."""
 
 # input="""{
 #     "email":"jsainilpatel2222@gmail.com",
@@ -59,7 +54,6 @@ branch_chain = RunnableBranch(
 
 classifier_chain= prompt|model_with_structured_output
 main_chain = classifier_chain|branch_chain
-
 
 
 

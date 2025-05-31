@@ -1,71 +1,47 @@
 import streamlit as st
 import requests
-import json
 
-# MCP server endpoint
-MCP_SERVER_URL = "http://localhost:8000/mcp/route"  # update if your route is different
+API_BASE = "http://localhost:8000"
 
-st.set_page_config(page_title="MCP AI Agent", layout="wide")
-st.title("🧠 Multi-Format Intake Agent with Context Memory")
+st.set_page_config(page_title="Grok-Like AI Agent", layout="centered")
 
-# Tabs for input modes
-tab_email, tab_json, tab_pdf = st.tabs(["📧 Email Input", "🧾 JSON Input", "📄 PDF Upload"])
+st.title("🤖 Multi-Format Agent Interface")
 
-with tab_email:
-    st.header("Email Input")
-    email = st.text_input("Sender Email")
-    message = st.text_area("Email Content")
-    intent = st.selectbox("Intent (optional)", ["", "RFQ", "Complaint", "Invoice", "Feedback"])
-    
-    if st.button("Submit Email", key="submit_email"):
-        if not email or not message:
-            st.warning("Email and message are required.")
+tab1, tab2 = st.tabs(["📝 Text Input", "📄 PDF Upload"])
+
+with tab1:
+    st.subheader("Submit Email or JSON Text")
+    user_input = st.text_area("Enter your input", height=200)
+    if st.button("Process Text"):
+        if user_input.strip():
+            with st.spinner("🔄 Thinking..."):
+                try:
+                    res = requests.post(f"{API_BASE}/process/", json={"inp": user_input})
+                    if res.status_code == 200:
+                        st.success("✅ Response:")
+                        st.json(res.json())
+                    else:
+                        st.error(f"❌ Error: {res.text}")
+                except Exception as e:
+                    st.error(f"🚫 Could not connect: {e}")
         else:
-            payload = {
-                "type": "email",
-                "email": email,
-                "data": message,
-                "intent": intent or "unknown"
-            }
-            with st.spinner("Thinking..."):
-                res = requests.post(MCP_SERVER_URL, json=payload)
-                st.success("Response received")
-                st.json(res.json())
+            st.warning("Please enter some input.")
 
-with tab_json:
-    st.header("JSON Webhook Input")
-    email = st.text_input("Sender Email (for memory tracking)", key="json_email")
-    json_data = st.text_area("Paste JSON Payload", height=200)
-    intent = st.selectbox("Intent (optional)", ["", "RFQ", "Complaint", "Invoice", "Feedback"], key="json_intent")
-    
-    if st.button("Submit JSON", key="submit_json"):
-        if not email or not json_data:
-            st.warning("Both email and JSON are required.")
-        else:
-            try:
-                parsed_data = json.loads(json_data)
-                payload = {
-                    "type": "json",
-                    "email": email,
-                    "data": str(parsed_data),  # flatten if needed
-                    "intent": intent or "unknown"
-                }
-                with st.spinner("Processing..."):
-                    res = requests.post(MCP_SERVER_URL, json=payload)
-                    st.success("Response received")
-                    st.json(res.json())
-            except json.JSONDecodeError:
-                st.error("Invalid JSON format")
-
-with tab_pdf:
-    st.header("PDF Upload")
-    uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
-    if st.button("Submit PDF"):
+with tab2:
+    st.subheader("Upload PDF File")
+    uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+    if st.button("Process PDF"):
         if uploaded_file:
-            files = {"file": uploaded_file.getvalue()}
-            with st.spinner("Extracting text and analyzing..."):
-                res = requests.post("http://localhost:8000/mcp/pdf", files={"pdf": uploaded_file})
-                st.success("Response received")
-                st.json(res.json())
+            with st.spinner("🔄 Thinking..."):
+                try:
+                    files = {"file": (uploaded_file.name, uploaded_file, "application/pdf")}
+                    res = requests.post(f"{API_BASE}/pdf/", files=files)
+                    if res.status_code == 200:
+                        st.success("✅ PDF Processed:")
+                        st.json(res.json())
+                    else:
+                        st.error(f"❌ Error: {res.text}")
+                except Exception as e:
+                    st.error(f"🚫 Could not connect: {e}")
         else:
-            st.warning("Please upload a PDF.")
+            st.warning("Please upload a PDF file.")

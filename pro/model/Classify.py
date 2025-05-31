@@ -5,3 +5,7 @@ class ClassifySchema(BaseModel):
     data:Annotated[str,Field(description="pass the input data further for the extraction if inpur is json then send the json and if the input is email then again sent the email as it is send the input as it is" )]
     email:Annotated[str,Field(description="Extract the email adress from the mail or json")]
     intent:Annotated[Literal["RFQ", "Complaint", "Invoice", "Regulation", "Fraud Risk"],Field("Identify the intent of the mail,json or pdf.")]
+class Email(BaseModel):
+    email:str
+    data:Annotated[str,Field(description="pass the input data further for the extraction if inpur is json then send the json and if the input is email then again sent the email as it is send the input as it is" )]
+    intent:Annotated[Literal["RFQ", "Complaint", "Invoice", "Regulation", "Fraud Risk"],Field("Identify the intent of the mail,json or pdf.")]

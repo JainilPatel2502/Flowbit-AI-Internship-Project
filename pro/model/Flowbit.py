@@ -9,7 +9,7 @@ class FlowbitSchema(BaseModel):
     intent:Annotated[Literal['RFQ','Invoice','Complaint'],Field(description="This will tell the intent of the request")]
     tone:Annotated[Literal['angry','extreamly angry','nice'],Field(description="The tone in which the data is written")]
     total:Annotated[Optional[float],Field(description="give the total amout of the qoutation or invoice")]
-    policy:Annotated[Optional[Literal["GDPR","FDA"]],Field(description="if the policy mentions Policy mentions ")] 
+    # policy:Annotated[Optional[Literal["GDPR","FDA"]],Field(description="if the policy mentions ")] 
     customer:CutomerSchema
     request:RequestSchema
     metadata:MetaDataSchema

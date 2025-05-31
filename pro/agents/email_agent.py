@@ -48,7 +48,7 @@ def run_model_fn(inputs: dict) -> dict:
     return {
         "email": inputs["email"],
         "input": inputs["input"],
-        "output": result,
+        "output": result.model_dump(),
         "raw_history": inputs["raw_history"]
     }
 
@@ -57,19 +57,8 @@ run_model = RunnableLambda(run_model_fn)
 #email
 emailchain=format_prompt | run_model
 
-
-
-
-
-
-
-
 #memory
 email_chain = get_memory | format_prompt | run_model | set_memory
-
-
-
-
 
 #basic
 email_ch=prompt|model_with_structured_output
