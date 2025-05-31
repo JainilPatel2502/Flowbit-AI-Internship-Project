@@ -7,18 +7,18 @@ from langchain.schema.runnable import RunnableLambda
 from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.memory.entity import RedisEntityStore
-from pro.model.Flowbit import FlowbitSchema
-from pro.memory.memory import get_memory,set_memory
+from project.model.Flowbit import FlowbitSchema
+from project.memory.memory import set_memory,get_memory
 load_dotenv()
 
 prompt = PromptTemplate(
     template="""
-    This is the email from our client. Extract structured details.
+    This is a JSON blob from our client. Extract structured details.
 
     Conversation history:
     {history}
 
-    New message:
+    New JSON:
     {input}
     """,
     input_variables=["input", "history"]
@@ -49,18 +49,18 @@ def run_model_fn(inputs: dict) -> dict:
     return {
         "email": inputs["email"],
         "input": inputs["input"],
-        "output": result.model_dump(),
+        "output": result,
         "raw_history": inputs["raw_history"]
     }
 
 run_model = RunnableLambda(run_model_fn)
+jsonchain = format_prompt | run_model
+json_chain = get_memory | format_prompt | run_model | set_memory
+json_agent = json_chain
+json_ch=prompt|model_with_structured_output
+json_agent = json_ch
 
-emailchain=format_prompt | run_model
-email_chain = get_memory | format_prompt | run_model | set_memory
-email_ch=prompt|model_with_structured_output
-email_agent = email_ch
-
-def stream_email_agent(input_data: dict):
+def stream_json_agent(input_data: dict):
     memory = get_memory.invoke(input_data)
     yield f"Step 5: Memory fetched -> {memory}\n"
 
@@ -69,8 +69,8 @@ def stream_email_agent(input_data: dict):
 
     model_output = model_with_structured_output.invoke(formatted)
     output_json = model_output.model_dump()
+    result = output_json
     yield f"Step 7: Model called -> {json.dumps(output_json, indent=2)}\n"
-    result=output_json
     if result['tone']=="angry":
         response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
 
@@ -88,4 +88,4 @@ def stream_email_agent(input_data: dict):
     set_memory.invoke(full_output)
     yield f"Step 8: Memory saved.\n"
 
-    yield f" Done.\n"
+    yield f"ject Done.\n"

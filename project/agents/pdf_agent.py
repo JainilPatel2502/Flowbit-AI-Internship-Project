@@ -9,9 +9,9 @@ from langchain.prompts import PromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.memory.entity import RedisEntityStore
 from langchain_community.document_loaders import PyPDFLoader
-from pro.model.Classify import Email
-from pro.model.Flowbit import FlowbitSchema
-from pro.memory.memory import set_memory, get_memory
+from project.model.Classify import Email
+from project.model.Flowbit import FlowbitSchema
+from project.memory.memory import set_memory, get_memory
 load_dotenv()
 
 initial_prompt=PromptTemplate(
@@ -81,7 +81,7 @@ pdf_chain = initial_prompt|model_email|model_to_dict|get_memory | format_prompt 
 pdf_agent = pdf_chain
 
 def pdf_stream_agent(pdf_path: str):
-    yield " Extracting text from PDF...\n\n\n"
+    yield "ject Extracting text from PDF...\n\n\n"
     text = extract_text_from_pdf(pdf_path)
     time.sleep(0.1)
 

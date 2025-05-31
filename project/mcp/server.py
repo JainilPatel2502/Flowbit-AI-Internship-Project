@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request,UploadFile, File
 from fastapi.responses import StreamingResponse
-from pro.agents.classifier_agent import stream_main_agent
-from pro.agents.pdf_agent import pdf_stream_agent
+from project.agents.classifier_agent import stream_main_agent
+from project.agents.pdf_agent import pdf_stream_agent
 import time
 import uuid
 import tempfile

@@ -1,9 +1,9 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnableBranch,RunnableLambda
-from pro.model.Classify import  ClassifySchema
-from pro.agents.email_agent import email_chain, stream_email_agent
-from pro.agents.json_agent import json_chain, stream_json_agent
+from project.model.Classify import  ClassifySchema
+from project.agents.email_agent import email_chain, stream_email_agent
+from project.agents.json_agent import json_chain, stream_json_agent
 import json
 import os
 from dotenv import load_dotenv

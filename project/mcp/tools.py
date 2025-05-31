@@ -1,9 +1,9 @@
 from langchain.tools import tool
-from pro.agents.classifier_agent import classifier_chain
-from pro.agents.pdf_agent import pdf_chain, extract_text_from_pdf
-from pro.agents.email_agent import emailchain
-from pro.memory.memory import get_history_from_redis,set_history_to_redis
-from pro.agents.json_agent import jsonchain
+from project.agents.classifier_agent import classifier_chain
+from project.agents.pdf_agent import pdf_chain, extract_text_from_pdf
+from project.agents.email_agent import emailchain
+from project.memory.memory import get_history_from_redis,set_history_to_redis
+from project.agents.json_agent import jsonchain
 
 
 @tool
