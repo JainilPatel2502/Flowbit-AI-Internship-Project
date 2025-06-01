@@ -13,13 +13,22 @@ load_dotenv()
 
 prompt = PromptTemplate(
     template="""
-    This is the email from our client. Extract structured details.
+    You are an assistant that processes customer emails.
 
-    Conversation history:
-    {history}
+Your task is to:
+- Extract key structured fields from the message
+- Detect customer tone (e.g., calm, neutral, angry, extremely angry)
+- Identify the total financial amount if any
+- Parse customer contact info (especially email)
 
-    New message:
-    {input}
+---
+
+Conversation history:
+{history}
+
+New message:
+{input}
+
     """,
     input_variables=["input", "history"]
 )
@@ -62,23 +71,26 @@ email_agent = email_ch
 
 def stream_email_agent(input_data: dict):
     memory = get_memory.invoke(input_data)
-    yield f"Step 5: Memory fetched -> {memory}\n"
+    yield f"Step 5: Memory fetched -> {json.dumps(memory, indent=2)}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
 
     formatted = prompt.format(input=memory["input"], history=memory["history"])
-    yield f"Step 6: Prompt formatted -> {formatted}\n"
+    yield f"Step 6: Prompt formatted"
 
     model_output = model_with_structured_output.invoke(formatted)
     output_json = model_output.model_dump()
-    yield f"Step 7: Model called -> {json.dumps(output_json, indent=2)}\n"
+    yield f"Step 7: Model called -> {json.dumps(output_json, indent=2)}\n\n\n\n\n\n\n\n\n\n"
     result=output_json
-    if result['tone']=="angry":
+    if result['tone']=="escalation":
+        yield f" Tone detected as '{result['tone']}'. Triggering risk alert API...\n\n\n\n\n\n\n\n\n\n"
         response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
 
-    if result['tone']=="extreamly angry":
+    if result['tone']=="threatening":
         response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
+        yield f" Tone detected as '{result['tone']}'. Triggering risk alert API...\n\n\n\n\n\n\n\n\n\n"
 
     if result['total']>10000:
         response=requests.get("http://127.0.0.1:8001/total",json={"total":result['total'],"email":result['customer']["email"]})
+        yield f" Total detected above '{result['total']}'. Triggering total alert API...\n\n\n\n\n\n\n\n\n\n"
     full_output = {
         "email": input_data["email"],
         "input": input_data["data"],

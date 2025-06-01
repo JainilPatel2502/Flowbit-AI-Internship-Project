@@ -13,13 +13,18 @@ load_dotenv()
 
 prompt = PromptTemplate(
     template="""
-    This is a JSON blob from our client. Extract structured details.
+    You are an intelligent assistant processing client-submitted JSON data along with prior memory of conversation history.
 
-    Conversation history:
-    {history}
+Your task is to extract meaningful, structured information for downstream analysis.
 
-    New JSON:
-    {input}
+Below is the communication history between the assistant and the client:
+--------------------
+{history}
+--------------------
+
+Now here is the newly submitted JSON data:
+--------------------
+{input}
     """,
     input_variables=["input", "history"]
 )
@@ -62,22 +67,25 @@ json_agent = json_ch
 
 def stream_json_agent(input_data: dict):
     memory = get_memory.invoke(input_data)
-    yield f"Step 5: Memory fetched -> {memory}\n"
+    yield f"Step 5:Memory retrieved successfully for {input_data['email']}.\n\n\n\n\n\n\n\n\n\n"
 
     formatted = prompt.format(input=memory["input"], history=memory["history"])
-    yield f"Step 6: Prompt formatted -> {formatted}\n"
+    yield f"Step 6: Prompt formatted\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
 
     model_output = model_with_structured_output.invoke(formatted)
     output_json = model_output.model_dump()
     result = output_json
-    yield f"Step 7: Model called -> {json.dumps(output_json, indent=2)}\n"
-    if result['tone']=="angry":
+    yield f"Step 7: Model processed input and returned structured output:\n{json.dumps(output_json, indent=2)}\n"
+    if result['tone']=="escalation":
+        yield f" Tone detected as '{result['tone']}'. Triggering risk alert API...\n\n\n\n\n\n\n\n\n\n"
         response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
 
-    if result['tone']=="extreamly angry":
+    if result['tone']=="threatening":
+        yield f" Tone detected as '{result['tone']}'. Triggering risk alert API...\n\n\n\n\n\n\n\n\n\n"
         response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
 
     if result['total']>10000:
+        yield f" Total detected above '{result['total']}'. Triggering total alert API...\n\n\n\n\n\n\n\n\n\n"
         response=requests.get("http://127.0.0.1:8001/total",json={"total":result['total'],"email":result['customer']["email"]})
     full_output = {
         "email": input_data["email"],
@@ -88,4 +96,4 @@ def stream_json_agent(input_data: dict):
     set_memory.invoke(full_output)
     yield f"Step 8: Memory saved.\n"
 
-    yield f"ject Done.\n"
+    yield f"Done.\n"

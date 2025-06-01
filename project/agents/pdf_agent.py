@@ -81,7 +81,7 @@ pdf_chain = initial_prompt|model_email|model_to_dict|get_memory | format_prompt 
 pdf_agent = pdf_chain
 
 def pdf_stream_agent(pdf_path: str):
-    yield "ject Extracting text from PDF...\n\n\n"
+    yield "Extracting text from PDF...\n\n\n"
     text = extract_text_from_pdf(pdf_path)
     time.sleep(0.1)
 
@@ -98,7 +98,7 @@ def pdf_stream_agent(pdf_path: str):
     raw_history = get_memory.invoke(email_data)
     time.sleep(0.1)
     if raw_history:
-        yield f"found {raw_history}\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n "
+        yield f"found {json.dumps(raw_history,indent=2)}\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n "
     
     formatted_prompt = prompt.format(input=text, history=raw_history)
     time.sleep(0.1)
@@ -106,7 +106,7 @@ def pdf_stream_agent(pdf_path: str):
     yield f"Pdf agent exptracting the data\n \n\n\n\n\n\n\n\n\n\n \n \n\n\n\n\n\n\n\n\n\n "
     result = model_with_structured_output.invoke(formatted_prompt)
     time.sleep(0.1)
-
+    result=result.model_dump()
     if result['tone']=="angry":
         response=requests.get("http://127.0.0.1:8001/risk_alert",json={"tone":result['tone'],"email":result['customer']["email"]})
 
@@ -120,10 +120,10 @@ def pdf_stream_agent(pdf_path: str):
     full_output = {
         "email": email,
         "input": text,
-        "output": result.model_dump(),
+        "output": result,
         "raw_history": raw_history["raw_history"]
     }
     set_memory.invoke(full_output)
     time.sleep(0.1)
 
-    yield f"\n \n\n\n\n\n\n\n\n\n\n {json.dumps(result.model_dump(), indent=2)}"
+    yield f"\n \n\n\n\n\n\n\n\n\n\n {json.dumps(result, indent=2)}"
