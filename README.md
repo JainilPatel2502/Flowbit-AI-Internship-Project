@@ -31,7 +31,7 @@ This project implements a multi-agent system that intelligently processes docume
 
 ### Classifier Agent
 - Detects input format (JSON, Email, PDF)
-- Determines business intent (RFQ, Complaint, Invoice, Regulation, Fraud Risk)
+- Determines business intent (RFQ, Complaint, Invoice)
 - Routes to appropriate specialized agent
 - Uses few-shot examples and schema matching
 
@@ -44,14 +44,12 @@ This project implements a multi-agent system that intelligently processes docume
 ### JSON Agent
 - Parses webhook data
 - Validates against required schema fields
-- Detects anomalies (field mismatches, type errors)
 - Flags issues for follow-up
 
 ### PDF Agent
 - Extracts text and structure from documents
 - Parses line-item invoice data or policy documents
 - Flags high-value transactions (>$10,000)
-- Identifies compliance-related terms (GDPR, FDA, etc.)
 
 ### Shared Memory Store
 - Maintains context across agent interactions
@@ -67,28 +65,22 @@ This project implements a multi-agent system that intelligently processes docume
 
 ### Real-time UI with SSE
 - Implements Server-Sent Events (SSE) in FastAPI for real-time data streaming
-- Provides live visualization of agent actions and decision processes
 - Displays agent logs, processing steps, and triggered actions in real-time
-- Enables monitoring of the system's operation without refreshing the page
 
 ## Implementation Details
 
 ### Structured Data Handling
 - Uses Pydantic models for type safety and validation
 - Ensures consistent data structures throughout the system
-- Facilitates automatic validation and API integration
 
 ### Modular Architecture
 - Implements LangChain's Runnable Lambda pattern
 - Enables independent testing of components
 - Supports dynamic routing based on document classification
-- Ensures efficient in-memory processing
 
 ### Server-Sent Events Integration
 - Establishes persistent connections for real-time event streaming
 - Pushes agent action logs to the UI as they occur
-- Minimizes latency in displaying system activity
-- Creates responsive monitoring experience
 
 
 ## Technologies Used
@@ -96,7 +88,7 @@ This project implements a multi-agent system that intelligently processes docume
 - **Backend Framework**: FastAPI
 - **LLM Integration**: LangChain with Google Gemini
 - **Data Modeling**: Pydantic for structured data
-- **PDF Processing**: PyPDF2, PDFPlumber
+- **PDF Processing**: PyPDF2
 - **Memory Store**: Redis
 - **Real-time Updates**: Server-Sent Events (SSE)
 - **Development**: Python 3.10
