@@ -2,8 +2,8 @@
 
 A multi-format autonomous AI system with contextual decisioning & chained actions that processes various document types, extracts intent, and executes appropriate follow-up actions.
 
-
-https://github.com/user-attachments/assets/b921c3ed-1021-46b5-986a-15aa7bc04492
+Video
+https://youtu.be/b40MIEDEom0
 
 
 ## Project Overview
