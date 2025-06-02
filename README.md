@@ -15,6 +15,18 @@ This project implements a multi-agent system that intelligently processes docume
 ![Input (1)](https://github.com/user-attachments/assets/149212bf-8223-4d47-bfce-560f07d32d80)
 
 
+## Screenshot
+# Input
+![image](https://github.com/user-attachments/assets/bcdd7e7f-5232-4d3f-a9f3-52a8e3c9cd2b)
+
+# Output
+![image](https://github.com/user-attachments/assets/f8ed7016-c49f-4416-99a2-819a769e6846)
+
+# Mock CRM 
+![image](https://github.com/user-attachments/assets/5bb3f427-169d-4bb4-b1fc-b70ab4ed395a)
+
+# Redis Database
+![image](https://github.com/user-attachments/assets/be36619d-dadb-4e58-a19a-d2d10a22536b)
 
 ## Key Features
 
